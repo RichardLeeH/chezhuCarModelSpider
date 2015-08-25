@@ -202,7 +202,6 @@ class KKCarModelParser(BeautifulSoup):
         price4S   = '暂无'
         priceReal = '暂无'
         priceManufacturer = '暂无'
-
         #获取车型名称和ID
         headMenu = self.find('div', attrs={'class':'head_menu'})        
         if headMenu:
@@ -234,14 +233,14 @@ class KKCarModelParser(BeautifulSoup):
                             priceReal  = otherPrice[1]
         
         modelItem = ChezhuhomeModelItem()
-        modelItem['mModelId']   = modelId
+        modelItem['mModelId']   = seriesId
         modelItem['mModelName'] = modelName
         modelItem['mYear']      = year
         modelItem['mSeriesId']  = seriesId
         modelItem['mPrice4S']   = price4S
         modelItem['mPriceReal'] = priceReal
         modelItem['mPriceManufacturer'] = priceManufacturer
-                   
+        print('modelItem='+str(modelItem))     
         return modelItem
                            
 if __name__ == "__main__":

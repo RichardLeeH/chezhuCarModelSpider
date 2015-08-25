@@ -49,6 +49,7 @@ class ChezhumodelspiderPipeline(object):
             priceReal   = item['mPriceReal']     #真实报价
             priceManufacturer = item['mPriceManufacturer'] #厂商指导价
             
+            print('car_db_model='+str(item))
             try:
                 self.cursor.execute("replace into t_kk_model(modelId, modelName, price4S, priceReal, priceManufacturer, year, seriesId) values(?, ?, ?, ?, ?, ?, ?)", (int(modelId), modelName, price4S, priceReal, priceManufacturer, year, int(seriesId)))
                 self.seriesCount = (self.seriesCount+1)
