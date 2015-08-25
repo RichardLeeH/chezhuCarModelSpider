@@ -6,31 +6,40 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-from os import path
+from scrapy.utils.project import get_project_settings
 from scrapy.xlib.pydispatch import dispatcher
 from scrapy import signals
 import sqlite3
-from items import ChezhuhomeBrandItem, ChezhuhomeSeriesItem
+import time
+from .DBManager import connMySQL
 
 class ChezhuHomePipeline(object):
-    filename  = '/Volumes/NormalDisk/scrapyProject/chezhuHomeSpider/kakaCar.db'
-    fileBrand = '/Volumes/NormalDisk/scrapyProject/chezhuHomeSpider/kakaCar.txt'
     def __init__(self):
         self.kkcardb = None
         self.cursor  = None
-        self.fout = open(self.fileBrand, 'w') 
         self.brandCount  = 0
         self.seriesCount = 0
         dispatcher.connect(self.initialize, signals.engine_started)
         dispatcher.connect(self.finalize, signals.engine_stopped)
     
     def initialize(self):
-        if path.exists(self.filename):
-            self.kkcardb = sqlite3.connect(self.filename)
-            self.cursor  = self.kkcardb.cursor()
-        else:
-            self.kkcardb = self.create_table(self.filename)
-            self.cursor  = self.kkcardb.cursor()
+#         if path.exists(self.filename):
+#             self.kkcardb = sqlite3.connect(self.filename)
+#             self.cursor  = self.kkcardb.cursor()
+#         else:
+#             self.kkcardb = self.create_table(self.filename)
+#             self.cursor  = self.kkcardb.cursor()
+        #连接MySQL
+        settings = get_project_settings()
+        host   = settings.get('MYSQL_HOST')
+        port   = settings.get('MYSQL_PORT')
+        user   = settings.get('MYSQL_USER')
+        passwd = settings.get('MYSQL_PASSWD')
+        dbName = settings.get('MYSQL_DBNAME')
+        print('mysql:'+host+','+port+','+user+','+passwd+','+dbName)
+        dbTool = connMySQL(host, int(port), user, passwd, dbName)
+        self.kkcardb = dbTool[0]
+        self.cursor  = dbTool[1]
  
     def finalize(self):
         if self.kkcardb is not None:
@@ -39,7 +48,6 @@ class ChezhuHomePipeline(object):
             self.kkcardb = None
             print('dbbrandCount='+str(self.brandCount))
             print('dbseriesCount='+str(self.seriesCount))
-            self.fout.close() 
     
     '''
     创建数据库及相关的表
@@ -64,37 +72,86 @@ class ChezhuHomePipeline(object):
         
         itemClassName = item.__class__.__name__
         
-        if cmp(itemClassName, 'ChezhuhomeBrandItem') == 0:
-            print('itemClassName=', itemClassName)
-
-            brandId       = item['mBrandId']
-            brandName     = item['mBrandName']
-            baseBrandId   = item['mBaseBrandId']
-            baseBrandName = item['mBaseBrandName']
-            firstLetter   = item['mFirstLetter']
-            seriesList    = item['mSeriesList']
-#             print('car_db_brand:'+brandId+','+brandName+','+baseBrandId+','+baseBrandName+','+firstLetter)
-#             self.fout.write(('car_db_brand:'+brandId+','+brandName+','+baseBrandId+','+baseBrandName+','+firstLetter).encode('utf-8') + '\n')       #将分词好的结果写入到输出文件 
-            try:
-                self.cursor.execute("replace into t_kk_brand(brandId, brandName, baseId, baseName, firstLetter) values(?, ?, ?, ?, ?)", (int(brandId), brandName, int(baseBrandId), baseBrandName, firstLetter))
-                self.brandCount = (self.brandCount+1)
-            #写入数据库:车品牌
-            except:
-                print('car_db_brand_error:')
-                
-            #车系写入数据库
-            for series in seriesList:
-                seriesId      = series['mSeriesId']
-                seriesName    = series['mSeriesName']
-                seriesBrandId = series['mBrandId']
-#                 print('car_db_series:'+seriesId+','+seriesName+','+seriesBrandId)
-                #写入数据库:车系
+        if cmp(spider.name, 'chezhuBrandSpider') == 0:
+            #车品牌，车系爬取
+            if cmp(itemClassName, 'ChezhuhomeBrandItem') == 0:
+                print('itemClassName=', itemClassName)
+    
+                brandId       = item['mBrandId']
+                brandName     = item['mBrandName']
+                baseBrandId   = item['mBaseBrandId']
+                baseBrandName = item['mBaseBrandName']
+                firstLetter   = item['mFirstLetter']
+                seriesList    = item['mSeriesList']
+    #             print('car_db_brand:'+brandId+','+brandName+','+baseBrandId+','+baseBrandName+','+firstLetter)
+    #             self.fout.write(('car_db_brand:'+brandId+','+brandName+','+baseBrandId+','+baseBrandName+','+firstLetter).encode('utf-8') + '\n')       #将分词好的结果写入到输出文件 
                 try:
-                    self.cursor.execute("replace into t_kk_series(seriesId, seriesName, brandId) values(?, ?, ?)", (int(seriesId), seriesName, int(seriesBrandId)))
-                    self.seriesCount = (self.seriesCount+1)
+                    #写入本地sqlite
+    #                 self.cursor.execute("replace into t_bx_car_brand(brandId, brandName, baseId, baseName, firstLetter) values(?, ?, ?, ?, ?)", (int(brandId), brandName, int(baseBrandId), baseBrandName, firstLetter))
+                    #写入mysql
+                    curTime = (time.time())*1000
+                    sql = "REPLACE into t_bx_car_brand(id,status,delFlag,createTime,modifyTime,brandName,charName, baseId, baseName) values(%s,%s,%s,%s,%s,%s,%s,%s,%s)"     
+                    param = (str(brandId),0,0,curTime,curTime,brandName.encode('utf8'), firstLetter, str(baseBrandId), baseBrandName.encode('utf8'))
+                     
+                    self.cursor.execute(sql,param)
+    
+                    self.brandCount = (self.brandCount+1)
+                #写入数据库:车品牌
                 except:
-                    print('car_db_series_error:')                    
-        elif cmp(itemClassName, 'ChezhuhomeModelItem') == 0:    
-            print('itemClassName=', itemClassName)
+                    print('car_db_brand_error:')
+                    
+                #车系写入数据库
+                for series in seriesList:
+                    seriesId      = series['mSeriesId']
+                    seriesName    = series['mSeriesName']
+                    seriesBrandId = series['mBrandId']
+    #                 print('car_db_series:'+seriesId+','+seriesName+','+seriesBrandId)
+                    #写入数据库:车系
+                    try:
+                        #写入sqlite数据库
+    #                     self.cursor.execute("replace into t_bx_car_series(seriesId, seriesName, brandId) values(?, ?, ?)", (int(seriesId), seriesName, int(seriesBrandId)))
+    
+                        #写入mysql
+                        curTime = (time.time()) * 1000
+                        sql = "REPLACE into t_bx_car_series(id,status,delFlag,createTime,modifyTime,seriesName,brandId) values(%s,%s,%s,%s,%s,%s,%s)"     
+                        param = (str(seriesId),0,0,curTime,curTime,seriesName.encode('utf8'), str(seriesBrandId))
+                         
+                        self.cursor.execute(sql,param)
+    
+                        self.seriesCount = (self.seriesCount+1)
+                        
+                    except:
+                        print('car_db_series_error:')                    
+            elif cmp(itemClassName, 'ChezhuhomeModelItem') == 0:    
+                print('itemClassName=', itemClassName)
+                
+        elif cmp(spider.name, 'chezhuModelpider') == 0:
+                if cmp(itemClassName, 'ChezhuhomeModelItem') == 0:
+                    print('itemClassName=', itemClassName)
+                
+                    modelId     = item['mModelId']       #车系ID
+                    modelName   = item['mModelName']     #车系名称
+                    seriesId    = item['mSeriesId']      #品牌ID
+                    year        = item['mYear']          #年代
+                    price4S     = item['mPrice4S']       #4S指导价
+                    priceReal   = item['mPriceReal']     #真实报价
+                    priceManufacturer = item['mPriceManufacturer'] #厂商指导价
+                    
+                    print('car_db_model='+str(item))
+                    try:
+        #                 self.cursor.execute("replace into t_kk_model(modelId, modelName, price4S, priceReal, priceManufacturer, year, seriesId) values(?, ?, ?, ?, ?, ?, ?)", (int(modelId), modelName, price4S, priceReal, priceManufacturer, year, int(seriesId)))
+                        curTime = time.time() * 1000
+                        sql = "REPLACE into t_bx_car_model(id,status,delFlag,createTime,modifyTime,modelName,modelYear,seriesId, price4S, priceReal, priceManufacturer) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"     
+                        param = (str(modelId),0,0,curTime,curTime,modelName.encode('utf8'), year, str(seriesId), price4S.encode('utf8'), priceReal.encode('utf8'),priceManufacturer.encode('utf8'))
+                        
+                        self.cursor.execute(sql,param)
+        
+                        self.seriesCount = (self.seriesCount+1)
+                    #写入数据库:车品牌
+                    except:
+                        print('car_db_model_error:')
+        else:
+            pass
+        
         return item
     

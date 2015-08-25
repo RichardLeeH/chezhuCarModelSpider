@@ -65,6 +65,12 @@ ITEM_PIPELINES = {
     'chezhuHomeSpider.pipelines.ChezhuHomePipeline': 300,
 }
 
+MYSQL_HOST = "182.92.0.17"
+MYSQL_PORT = "3306"
+MYSQL_USER = "root"
+MYSQL_PASSWD = "123456"
+MYSQL_DBNAME = "kktestdb"
+
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
 # NOTE: AutoThrottle will honour the standard settings for concurrency and delay

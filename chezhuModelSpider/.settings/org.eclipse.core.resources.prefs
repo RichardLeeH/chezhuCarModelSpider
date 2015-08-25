@@ -1,7 +1,0 @@
-eclipse.preferences.version=1
-encoding//chezhuModelSpider/RotateUserAgentMiddleware.py=utf-8
-encoding//chezhuModelSpider/items.py=utf-8
-encoding//chezhuModelSpider/pipelines.py=utf-8
-encoding//chezhuModelSpider/settings.py=utf-8
-encoding//chezhuModelSpider/spiders/KKCarModelParser.py=utf-8
-encoding//chezhuModelSpider/spiders/chezhuModelSpider.py=utf-8

@@ -3,6 +3,7 @@
 
 from KKCarModelParser import KKCarModelParser
 
+
 # Define here the models for your scraped items
 #
 # See documentation in:
@@ -12,12 +13,13 @@ from KKCarModelParser import KKCarModelParser
 爬取汽车之家的汽车模型  
 '''
 import scrapy
-import sqlite3
 from scrapy.http import Request
+from ..DBManager import connMySQL
+from scrapy.utils.project import get_project_settings
 
 class KKCarModelSpider(scrapy.Spider):
     
-    dbName  = '/Volumes/NormalDisk/scrapyProject/chezhuHomeSpider/kakaCar.db' 
+#    dbName  = '/Volumes/NormalDisk/scrapyProject/chezhuHomeSpider/kakaCar.db' 
     name = "chezhuModelSpider"
     allowed_domains = ["www.16888.com"]
     start_urls = [
@@ -27,12 +29,34 @@ class KKCarModelSpider(scrapy.Spider):
         self.initStartUrls()
         
     def initStartUrls(self):
-        self.kkcardb = sqlite3.connect(self.dbName)
-        self.cursor  = self.kkcardb.cursor()
+#         self.kkcardb = sqlite3.connect(self.dbName)
+#         self.cursor  = self.kkcardb.cursor()
+        #连接MySQL
+        settings = get_project_settings()        
+        host   = settings.get('MYSQL_HOST')
+        port   = settings.get('MYSQL_PORT')
+        user   = settings.get('MYSQL_USER')
+        passwd = settings.get('MYSQL_PASSWD')
+        dbName = settings.get('MYSQL_DBNAME')
+
+        dbTool = connMySQL(host, int(port), user, passwd, dbName)
         
-        seriesIdList = self.cursor.execute('select seriesId from t_kk_series')
-        
-        for seriesId in seriesIdList:
+        self.kkcardb = dbTool[0]
+        self.cursor  = dbTool[1]
+
+        #sqlite3中方法
+#         seriesIdList = self.cursor.execute('select id from t_bx_car_series')
+#         
+#         for seriesId in seriesIdList:
+#             start_url = 'http://www.16888.com/'+str(seriesId[0])
+#             self.start_urls.append(start_url)
+#             print('start_urls='+start_url)
+
+        #mysql方法
+        count = self.cursor.execute('select id from t_bx_car_series')
+        print('count='+str(count))
+        seriesList = self.cursor.fetchall()
+        for seriesId in seriesList:
             start_url = 'http://www.16888.com/'+str(seriesId[0])
             self.start_urls.append(start_url)
             print('start_urls='+start_url)

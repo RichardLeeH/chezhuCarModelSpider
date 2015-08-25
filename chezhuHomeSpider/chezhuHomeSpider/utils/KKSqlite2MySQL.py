@@ -36,14 +36,14 @@ if __name__ == "__main__":
     convertTool = KKSqlite2MySQL()
     
     #连接MySQL
-    host = 'xxx.xxx.xxx.xxx'
+    host = '182.92.0.17'
     user = 'root'
     passwd = '123456'
     dbName = 'kakabaoxiantestdb'
     mysqlInstance = convertTool.connMySQL(host, user, passwd, dbName)
 
     #连接sqlite数据库
-    sqliteDBName = '/Volumes/NormalDisk/scrapyProject/chezhuHomeSpider/kakaCar.db'
+    sqliteDBName = '/Volumes/NormalDisk/scrapyProject/carModelSpider/carModelSpider/kkcar.db'
     sqliteInstance = convertTool.connSqlite(sqliteDBName)
     
     #导入到t_brand 表中
@@ -53,8 +53,8 @@ if __name__ == "__main__":
         #将数据插入到MySQL的表 t_brand中
         print(ii)
         curTime = (time.time())*1000
-        sql = "REPLACE into t_bx_car_brand(id,status,delFlag,createTime,modifyTime,brandName,charName, baseId, baseName) values(%s,%s,%s,%s,%s,%s,%s,%s,%s)"     
-        param = (str(ii[0]),0,0,curTime,curTime,ii[1].encode('utf8'), ii[4], str(ii[2]), ii[3].encode('utf8'))
+        sql = "REPLACE into t_brand(id,status,delFlag,createTime,modifyTime,brandName,charName) values(%s,%s,%s,%s,%s,%s,%s)"     
+        param = (str(ii[0]),0,0,curTime,curTime,ii[1].encode('utf8'), ii[2].encode('utf8'))
          
         mysqlInstance[1].execute(sql,param)
      
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         #将数据插入到MySQL的表 t_brand中
         print(ii)
         curTime = (time.time()) * 1000
-        sql = "REPLACE into t_bx_car_series(id,status,delFlag,createTime,modifyTime,seriesName,brandId) values(%s,%s,%s,%s,%s,%s,%s)"     
+        sql = "REPLACE into t_series(id,status,delFlag,createTime,modifyTime,seriesName,brandId) values(%s,%s,%s,%s,%s,%s,%s)"     
         param = (str(ii[0]),0,0,curTime,curTime,ii[1].encode('utf8'), str(ii[2]))
          
         mysqlInstance[1].execute(sql,param)
@@ -77,8 +77,8 @@ if __name__ == "__main__":
         #将数据插入到MySQL的表 t_brand中
         print(ii)
         curTime = time.time() * 1000
-        sql = "REPLACE into t_bx_car_model(id,status,delFlag,createTime,modifyTime,modelName,modelYear,seriesId, price4S, priceReal, priceManufacturer) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"     
-        param = (str(ii[0]),0,0,curTime,curTime,ii[1].encode('utf8'), ii[5], str(ii[6]), ii[2].encode('utf8'), ii[3].encode('utf8'),ii[4].encode('utf8'))
+        sql = "REPLACE into t_model(id,status,delFlag,createTime,modifyTime,modelName,modelYear,seriesId, maxPrice, minPrice) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"     
+        param = (str(ii[0]),0,0,curTime,curTime,ii[1].encode('utf8'), str(ii[4]), ii[5], ii[2], ii[3])
         
         mysqlInstance[1].execute(sql,param)
 
@@ -88,6 +88,5 @@ if __name__ == "__main__":
     sqliteInstance[0].commit()
     sqliteInstance[1].close()
     sqliteInstance[0].close()
-    print('convert ok')
     
     

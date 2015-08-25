@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# coding=utf-8
 
 # Define here the models for your scraped items
 ## 车型解析
@@ -10,10 +11,6 @@ from BeautifulSoup import BeautifulSoup
 from ..items import ChezhuhomeModelItem
 
 import urlparse
-import sqlite3
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 def getSeriesId(aUrl):
     result = urlparse.urlparse(aUrl)
