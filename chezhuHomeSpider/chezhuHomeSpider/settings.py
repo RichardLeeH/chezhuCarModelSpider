@@ -65,7 +65,7 @@ ITEM_PIPELINES = {
     'chezhuHomeSpider.pipelines.ChezhuHomePipeline': 300,
 }
 
-MYSQL_HOST = "182.92.0.17"
+MYSQL_HOST = "xxx.xxx.xxx.xxx"
 MYSQL_PORT = "3306"
 MYSQL_USER = "root"
 MYSQL_PASSWD = "123456"
