@@ -20,7 +20,7 @@ class KKCarModelSpider(scrapy.Spider):
     dbName  = '/Volumes/NormalDisk/scrapyProject/chezhuHomeSpider/kakaCar.db' 
     name = "chezhuModelSpider"
     allowed_domains = ["www.16888.com"]
-    start_urls = ['http://www.16888.com/57219/'
+    start_urls = [
      ]
     
     def __init__(self, name=None, **kwargs):
@@ -32,10 +32,10 @@ class KKCarModelSpider(scrapy.Spider):
         
         seriesIdList = self.cursor.execute('select seriesId from t_kk_series')
         
-#         for seriesId in seriesIdList:
-#             start_url = 'http://www.16888.com/'+str(seriesId[0])
-#             self.start_urls.append(start_url)
-#             print('start_urls='+start_url)
+        for seriesId in seriesIdList:
+            start_url = 'http://www.16888.com/'+str(seriesId[0])
+            self.start_urls.append(start_url)
+            print('start_urls='+start_url)
 
         self.cursor.close()
         self.kkcardb.close()
@@ -58,6 +58,8 @@ class KKCarModelSpider(scrapy.Spider):
                 yield seriesList
             else:#车型也不存在，只有一种情况，即车系就是其对应的车型
                 model = modelParser.parse_onlyModel(response.url)
+                if model and len(model):
+                    print('only_model='+str(model))
                 yield model
                     
     def parse_model(self, response):
