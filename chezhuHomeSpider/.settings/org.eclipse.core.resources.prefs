@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+encoding//chezhuBrandSpider/items.py=utf-8
+encoding//chezhuBrandSpider/pipelines.py=utf-8
+encoding//chezhuBrandSpider/settings.py=utf-8
+encoding//chezhuBrandSpider/spiders/KKCarBrandParser.py=utf-8
+encoding//chezhuBrandSpider/spiders/KKCarModelParser.py=utf-8
+encoding//chezhuBrandSpider/spiders/chezhuBrandSpider.py=utf-8
+encoding//chezhuHomeSpider/items.py=utf-8
+encoding//chezhuHomeSpider/pipelines.py=utf-8
+encoding//chezhuHomeSpider/settings.py=utf-8
+encoding//chezhuHomeSpider/spiders/KKCarBrandParser.py=utf-8
+encoding//chezhuHomeSpider/spiders/chezhuBrandSpider.py=utf-8
