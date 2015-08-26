@@ -7,7 +7,7 @@
 
 from BeautifulSoup import BeautifulSoup
 
-from ..items import ChezhuhomeBrandItem, ChezhuhomeSeriesItem
+from chezhuHomeSpider.items import ChezhuhomeBrandItem, ChezhuhomeSeriesItem
 
 import re
 import urlparse

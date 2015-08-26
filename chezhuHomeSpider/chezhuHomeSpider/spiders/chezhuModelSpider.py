@@ -14,7 +14,7 @@ from KKCarModelParser import KKCarModelParser
 '''
 import scrapy
 from scrapy.http import Request
-from ..DBManager import connMySQL
+from chezhuHomeSpider.utils.DBManager import connMySQL
 from scrapy.utils.project import get_project_settings
 
 class KKCarModelSpider(scrapy.Spider):
@@ -74,7 +74,6 @@ class KKCarModelSpider(scrapy.Spider):
             print('year_list='+str(yearList))
             for yearUrl in yearList:
                 yield Request(yearUrl, callback=self.parse_model)
-                yield yearUrl
                 
         else:#没有年列表
             seriesList = modelParser.parse_Model(response.url)

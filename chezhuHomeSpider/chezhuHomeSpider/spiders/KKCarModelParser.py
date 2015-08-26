@@ -8,9 +8,12 @@
 
 from BeautifulSoup import BeautifulSoup
 
-from ..items import ChezhuhomeModelItem
+from chezhuHomeSpider.items import ChezhuhomeModelItem
 
 import urlparse
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 def getSeriesId(aUrl):
     result = urlparse.urlparse(aUrl)
@@ -24,6 +27,13 @@ def getModelId(aUrl):
     path = result[2]
     pathList = path.split('/')
     value  = pathList[2]
+    return value
+
+def getOnlyModelId(aUrl):
+    result = urlparse.urlparse(aUrl)
+    path = result[2]
+    pathList = path.split('/')
+    value  = pathList[1]
     return value
 
 def getSubId(aUrl):
@@ -212,7 +222,7 @@ class KKCarModelParser(BeautifulSoup):
                         if model_tag:
                             modelName = model_tag.text
                             href      = model_tag['href']
-                            modelId   = getModelId(href)
+                            modelId   = getOnlyModelId(href)
         #获取车型其他信息
         carInfo = self.find('div', attrs={'class':'wrap'}) 
         if carInfo:
@@ -242,13 +252,13 @@ class KKCarModelParser(BeautifulSoup):
                            
 if __name__ == "__main__":
 
-    fp = open("/Volumes/NormalDisk/scrapyProject/chezhuHomeSpider/chezhuHomeSpider/Sources/chezhuHome_model.html")
+    fp = open("/Volumes/NormalDisk/scrapyProject/chezhuHomeSpider/chezhuHomeSpider/Sources/125955.html")
     
     brandParse = KKCarModelParser(fp.read())
  
     yearList = brandParse.parse_year()
     
-    brandParse.parse_Model()
+    brandParse.parse_onlyModel('http://www.16888.com/125955')
     
     
     

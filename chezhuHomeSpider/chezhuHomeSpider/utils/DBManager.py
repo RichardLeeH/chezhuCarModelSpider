@@ -15,5 +15,3 @@ def connMySQL(aHost, aPort, aUser, aPasswd, aDBName):
     cur.execute('SET CHARACTER SET utf8;')
     cur.execute('SET character_set_connection=utf8;')
     return (conn, cur)
-
-    

@@ -11,7 +11,9 @@ from scrapy.xlib.pydispatch import dispatcher
 from scrapy import signals
 import sqlite3
 import time
-from .DBManager import connMySQL
+
+from chezhuHomeSpider.utils.DBManager import connMySQL
+
 
 class ChezhuHomePipeline(object):
     def __init__(self):
@@ -19,6 +21,7 @@ class ChezhuHomePipeline(object):
         self.cursor  = None
         self.brandCount  = 0
         self.seriesCount = 0
+        self.modelCount  = 0
         dispatcher.connect(self.initialize, signals.engine_started)
         dispatcher.connect(self.finalize, signals.engine_stopped)
     
@@ -48,7 +51,7 @@ class ChezhuHomePipeline(object):
             self.kkcardb = None
             print('dbbrandCount='+str(self.brandCount))
             print('dbseriesCount='+str(self.seriesCount))
-    
+            print('dbmodelCount='+str(self.modelCount))    
     '''
     创建数据库及相关的表
     '''
@@ -94,7 +97,6 @@ class ChezhuHomePipeline(object):
                     param = (str(brandId),0,0,curTime,curTime,brandName.encode('utf8'), firstLetter, str(baseBrandId), baseBrandName.encode('utf8'))
                      
                     self.cursor.execute(sql,param)
-    
                     self.brandCount = (self.brandCount+1)
                 #写入数据库:车品牌
                 except:
@@ -117,7 +119,6 @@ class ChezhuHomePipeline(object):
                         param = (str(seriesId),0,0,curTime,curTime,seriesName.encode('utf8'), str(seriesBrandId))
                          
                         self.cursor.execute(sql,param)
-    
                         self.seriesCount = (self.seriesCount+1)
                         
                     except:
@@ -125,31 +126,30 @@ class ChezhuHomePipeline(object):
             elif cmp(itemClassName, 'ChezhuhomeModelItem') == 0:    
                 print('itemClassName=', itemClassName)
                 
-        elif cmp(spider.name, 'chezhuModelpider') == 0:
-                if cmp(itemClassName, 'ChezhuhomeModelItem') == 0:
-                    print('itemClassName=', itemClassName)
+        elif cmp(spider.name, 'chezhuModelSpider') == 0:
+            if cmp(itemClassName, 'ChezhuhomeModelItem') == 0:
+                print('itemClassName=', itemClassName)
+            
+                modelId     = item['mModelId']       #车系ID
+                modelName   = item['mModelName']     #车系名称
+                seriesId    = item['mSeriesId']      #品牌ID
+                year        = item['mYear']          #年代
+                price4S     = item['mPrice4S']       #4S指导价
+                priceReal   = item['mPriceReal']     #真实报价
+                priceManufacturer = item['mPriceManufacturer'] #厂商指导价
                 
-                    modelId     = item['mModelId']       #车系ID
-                    modelName   = item['mModelName']     #车系名称
-                    seriesId    = item['mSeriesId']      #品牌ID
-                    year        = item['mYear']          #年代
-                    price4S     = item['mPrice4S']       #4S指导价
-                    priceReal   = item['mPriceReal']     #真实报价
-                    priceManufacturer = item['mPriceManufacturer'] #厂商指导价
+                print('car_db_model='+str(item))
+                try:
+    #                 self.cursor.execute("replace into t_kk_model(modelId, modelName, price4S, priceReal, priceManufacturer, year, seriesId) values(?, ?, ?, ?, ?, ?, ?)", (int(modelId), modelName, price4S, priceReal, priceManufacturer, year, int(seriesId)))
+                    curTime = time.time() * 1000
+                    sql = "REPLACE into t_bx_car_model(id,status,delFlag,createTime,modifyTime,modelName,modelYear,seriesId, price4S, priceReal, priceManufacturer) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"     
+                    param = (str(modelId),0,0,curTime,curTime,modelName.encode('utf8'), year, str(seriesId), price4S.encode('utf8'), priceReal.encode('utf8'),priceManufacturer.encode('utf8'))
                     
-                    print('car_db_model='+str(item))
-                    try:
-        #                 self.cursor.execute("replace into t_kk_model(modelId, modelName, price4S, priceReal, priceManufacturer, year, seriesId) values(?, ?, ?, ?, ?, ?, ?)", (int(modelId), modelName, price4S, priceReal, priceManufacturer, year, int(seriesId)))
-                        curTime = time.time() * 1000
-                        sql = "REPLACE into t_bx_car_model(id,status,delFlag,createTime,modifyTime,modelName,modelYear,seriesId, price4S, priceReal, priceManufacturer) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"     
-                        param = (str(modelId),0,0,curTime,curTime,modelName.encode('utf8'), year, str(seriesId), price4S.encode('utf8'), priceReal.encode('utf8'),priceManufacturer.encode('utf8'))
-                        
-                        self.cursor.execute(sql,param)
-        
-                        self.seriesCount = (self.seriesCount+1)
-                    #写入数据库:车品牌
-                    except:
-                        print('car_db_model_error:')
+                    self.cursor.execute(sql,param)
+                    self.modelCount = (self.modelCount+1)
+                #写入数据库:车品牌
+                except:
+                    print('car_db_model_error:')
         else:
             pass
         
